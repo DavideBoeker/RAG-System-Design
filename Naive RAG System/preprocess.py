@@ -43,3 +43,18 @@ def preprocess_text(text):
     preprocessed_text = ' '.join(tokens)
 
     return preprocessed_text
+
+
+def split_text_into_chunks(text, chunk_length, overlap):
+    chunks = []
+    start = 0
+    
+    while start < len(text):
+        end = start + chunk_length
+        chunk = text[start:end]
+        chunks.append(chunk)
+        
+        # Move the start position by chunk_length - overlap to achieve the desired overlap
+        start += chunk_length - overlap
+    
+    return chunks
