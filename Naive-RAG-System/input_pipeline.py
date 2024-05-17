@@ -28,24 +28,12 @@ preprocessed_text = preprocess.preprocess_text(pdf_text)
 chunks = preprocess.split_text_into_chunks(pdf_text, chunk_length=500, overlap=100)
 
 
-# Step 3: Contextual Embedding of Text Data
-embeddings = embedding.get_bert_embeddings(chunks)
+# # Step 3: Contextual Embedding of Text Data
+# embeddings = embedding.get_bert_embeddings(chunks)
 
 
 # Step 4: Load Text Data to Vector DB
 
 ### Define database path and collection name
-database_path = './database.db'  # Relative path to the database file
+database_path = ''  # Relative path to the database file
 collection_name = 'baba_2024'
-
-### Create table in vector DB if it does not exist yet
-vector_db_operations.initialize_table(database_path=database_path, collection_name=collection_name)
-
-### Load text chunks, embeddings and metadata to vector DB
-vector_db_operations.load_data_to_db(
-    text_chunks=chunks,
-    embeddings=embeddings,
-    pdf_name=pdf_file_path,
-    collection_name=collection_name,
-    database_path=database_path
-)
