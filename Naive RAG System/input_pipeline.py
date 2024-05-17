@@ -19,6 +19,9 @@ pdf_file_path = 'test.pdf'
 # Extract text from the PDF
 pdf_text = load_text_from_pdf.extract_text_from_pdf(pdf_file_path)
 
+# Split the text into text chunks
+chunks = load_text_from_pdf.split_text_into_chunks(pdf_text, chunk_length=200, overlap=50)
+
 
 
 
@@ -29,7 +32,7 @@ preprocessed_text = preprocess.preprocess_text(pdf_text)
 print(preprocessed_text)
 
 # Step 3: Contextual Embedding of Text Data
-embeddings = embedding.get_bert_embeddings(text)
+embeddings = embedding.get_bert_embeddings(preprocessed_text)
 
 
 # Step 4: Load Text Data to Vector DB
