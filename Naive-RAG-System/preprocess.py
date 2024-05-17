@@ -10,6 +10,7 @@ import spacy
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 # Load Spacy model for NER and lemmatization
 nlp = spacy.load('en_core_web_sm')
