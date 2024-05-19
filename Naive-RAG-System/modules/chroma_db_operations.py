@@ -31,7 +31,7 @@ def create_collection(collection_name):
 
 
 
-def add_to_collection(documents, collection):
+def add_to_collection(documents, collection_name):
 
     """
     Add a list of documents (text chunks) to an existing collection.
@@ -43,6 +43,15 @@ def add_to_collection(documents, collection):
     Returns:
     None.
     """
+
+    # Start Chroma client
+    chroma_client = chromadb.HttpClient(host="localhost", port=8000)
+
+    # Retrieve the embedding function from the Python module
+    embedding_function = embedding.BERTEmbeddingFunction()
+
+    # Fetch the required collection from the Chroma DB
+    collection = chroma_client.get_collection(name=collection_name, embedding_function=embedding_function)
 
     # Create IDs for each document in the document collection
     document_ids = list(map(lambda tup: f"id{tup[0]}", enumerate(documents))) # Simple numeric ID creation
