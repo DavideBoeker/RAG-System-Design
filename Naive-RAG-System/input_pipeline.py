@@ -8,27 +8,33 @@ import modules.preprocess as preprocess
 import modules.chroma_db_operations as chroma_db_operations
 
 
-# Step 1: Load Data from PDF
+def main():
 
-### Path to the PDF file
-pdf_file_path = 'input_data/test.pdf'
-# /Users/davide/Documents/GitHub/RAG-System-Design/Naive-RAG-System/input_data
+    # Step 1: Load Data from PDF
 
-### Extract text from the PDF
-pdf_text = load_text_from_pdf.extract_text_from_pdf(pdf_file_path)
+    ### Path to the PDF file
+    pdf_file_path = 'input_data/test.pdf'
+    # /Users/davide/Documents/GitHub/RAG-System-Design/Naive-RAG-System/input_data
 
-
-# Step 2: Preprocess the Text Data
-chunks = preprocess.split_text_into_chunks(pdf_text, chunk_length=500, overlap=100)
+    ### Extract text from the PDF
+    pdf_text = load_text_from_pdf.extract_text_from_pdf(pdf_file_path)
 
 
-# Step 3: Load Text Data to Vector DB
+    # Step 2: Preprocess the Text Data
+    chunks = preprocess.split_text_into_chunks(pdf_text, chunk_length=500, overlap=100)
 
-### Define database path and collection name
-collection_name = 'test'
 
-### Create the Chroma DB collection
-chroma_db_operations.create_collection(collection_name=collection_name) # The collection is hosted in a Docker container with a local mount in /chroma/
+    # Step 3: Load Text Data to Vector DB
 
-### Add the documents (text chunks) to the collection
-chroma_db_operations.add_to_collection(documents=chunks, collection_name=collection_name)
+    ### Define database path and collection name
+    collection_name = 'test'
+
+    ### Create the Chroma DB collection
+    chroma_db_operations.create_collection(collection_name=collection_name) # The collection is hosted in a Docker container with a local mount in /chroma/
+
+    ### Add the documents (text chunks) to the collection
+    chroma_db_operations.add_to_collection(documents=chunks, collection_name=collection_name)
+
+
+if __name__=="__main__":
+    main()
