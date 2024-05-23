@@ -4,6 +4,7 @@
 
 # Import Python Modules
 from modules import chroma_db_operations
+from modules import inference_operations
 
 
 def main():
@@ -18,7 +19,8 @@ def main():
 
 
     # Step 3: Retrieve Answer to Question from LLM Inference
-
+    answer = inference_operations.model_inference(question=question, context=relevant_chunks)
+    print(answer)
 
 
 
