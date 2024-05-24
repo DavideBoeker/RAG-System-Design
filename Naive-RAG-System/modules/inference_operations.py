@@ -98,20 +98,16 @@ access_token = os.getenv('ACCESS_TOKEN') # Access token for Hugging Face Hub
 
 
 
-def model_inference(question, context):
+def model_inference(question, context, access_token):
 
-    model_id = "google/gemma-2b-it"
-    # model_id = "google/gemma-1.1-2b-it"
     # model_id = "deepseek-ai/deepseek-coder-1.3b-instruct"
+    # model_id = "google/gemma-2b-it"
+    model_id = "google/gemma-1.1-2b-it"
+    
 
     # Load the tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        use_auth_token=access_token,
-        device_map="auto",
-        torch_dtype=torch.bfloat16
-    )
+    model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token, device_map="auto", torch_dtype=torch.bfloat16)
 
     # Prepare the input text as a single string
     input_text = (
@@ -121,7 +117,8 @@ def model_inference(question, context):
         f"{context}\n\n"
         "---\n\n"
         "Now here is the question you need to answer.\n\n"
-        f"Question: {question}"
+        f"Question: {question}\n\n"
+        "Answer:"
     )
 
     # Tokenize the input text
@@ -145,6 +142,5 @@ def model_inference(question, context):
     answer_start = generated_text.find("Answer:")
     if answer_start != -1:
         generated_text = generated_text[answer_start + len("Answer:"):].strip()
-
 
     return generated_text
