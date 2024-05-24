@@ -9,6 +9,11 @@ import os
 access_token = os.getenv('ACCESS_TOKEN') # Access token for Hugging Face Hub
 
 
+def print_param_dtype(model):
+    for name, param in model.named_parameters():
+        print(f"{name} is loaded in {param.dtype}")
+
+
 
 # def model_inference(question, context):
 
@@ -98,36 +103,81 @@ access_token = os.getenv('ACCESS_TOKEN') # Access token for Hugging Face Hub
 
 
 
-def model_inference(question, context):
+# def model_inference(question, context):
 
-    # model_id = "deepseek-ai/deepseek-coder-1.3b-instruct"
-    # model_id = "google/gemma-2b-it"
-    model_id = "google/gemma-1.1-2b-it"
+#     # model_id = "deepseek-ai/deepseek-coder-1.3b-instruct"
+#     # model_id = "google/gemma-2b-it"
+#     model_id = "google/gemma-1.1-2b-it"
     
 
-    # Load the tokenizer and model
+#     # Load the tokenizer and model
+#     tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
+#     model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token, device_map="auto", torch_dtype=torch.bfloat16)
+
+#     # Prepare the input text as a single string
+#     input_text = (
+#         "You are an advisor. Answer each question only based on the context given to you. "
+#         "Do not invent any information beyond the context and say if you don't know the answer.\n\n"
+#         "Context:\n"
+#         f"{context}\n\n"
+#         "---\n\n"
+#         "Now here is the question you need to answer.\n\n"
+#         f"Question: {question}\n\n"
+#         "Answer:"
+#     )
+
+#     # Tokenize the input text
+#     inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
+
+#     # Generate the output
+#     outputs = model.generate(
+#         inputs['input_ids'],
+#         max_new_tokens=256,  # Adjust this as needed
+#         eos_token_id=tokenizer.eos_token_id,
+#         pad_token_id=tokenizer.eos_token_id,  # To avoid padding issues
+#         do_sample=True,
+#         temperature=0.6,
+#         top_p=0.9,
+#     )
+
+#     # Decode the generated text
+#     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+#     # Post-process the generated text to extract the answer
+#     answer_start = generated_text.find("Answer:")
+#     if answer_start != -1:
+#         generated_text = generated_text[answer_start + len("Answer:"):].strip()
+
+#     return generated_text
+
+
+def model_inference(question, context):
+
+    model_id = "google/gemma-1.1-2b-it"
+
+    # Load the tokenizer and model with the access token
+    print("Loading tokenizer and model...")
     tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
     model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token, device_map="auto", torch_dtype=torch.bfloat16)
+    # print()
+    # print()
+    # print_param_dtype(model)
+    # print()
+    # print()
 
-    # Prepare the input text as a single string
-    input_text = (
-        "You are an advisor. Answer each question only based on the context given to you. "
-        "Do not invent any information beyond the context and say if you don't know the answer.\n\n"
-        "Context:\n"
-        f"{context}\n\n"
-        "---\n\n"
-        "Now here is the question you need to answer.\n\n"
-        f"Question: {question}\n\n"
-        "Answer:"
-    )
+    # Prepare the input text
+    input_text = f"Answer the following question based on the context provided. Question: {question}. Context: {context}."
+    # print(f"Input text: {input_text}")
 
     # Tokenize the input text
-    inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
+    input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to(model.device)
+    # print(f"Tokenized input IDs: {input_ids}")
 
     # Generate the output
+    print("Generating response...")
     outputs = model.generate(
-        inputs['input_ids'],
-        max_new_tokens=256,  # Adjust this as needed
+        input_ids,
+        max_new_tokens=60,  # Reduce the number of tokens to generate for faster execution
         eos_token_id=tokenizer.eos_token_id,
         pad_token_id=tokenizer.eos_token_id,  # To avoid padding issues
         do_sample=True,
@@ -142,5 +192,5 @@ def model_inference(question, context):
     answer_start = generated_text.find("Answer:")
     if answer_start != -1:
         generated_text = generated_text[answer_start + len("Answer:"):].strip()
-
+    
     return generated_text
