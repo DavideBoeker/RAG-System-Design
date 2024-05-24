@@ -1,19 +1,57 @@
 # Import Libraries
 import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
+import os
+
+
+# Import Environment variables
+access_token = os.getenv('ACCESS_TOKEN') # Access token for Hugging Face Hub
 
 
 
 def model_inference(question, context):
 
+    print()
+    print()
+    print(question)
+    print()
+    print()
+    print(context)
+    print()
+    print()
+
     model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
 
-    pipeline = transformers.pipeline(
+    # Load the tokenizer and model
+    tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
+    model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token, torch_dtype=torch.bfloat16)
+
+    print(model)
+    print()
+    print()
+
+    # Ensure the eos_token_id is correctly retrieved
+    eos_token_id = tokenizer.eos_token_id
+
+    print(eos_token_id)
+    print()
+    print()
+
+    if eos_token_id is None:
+        raise ValueError("The eos_token_id could not be retrieved from the tokenizer.")
+
+    generator = pipeline(
         "text-generation",
-        model=model_id,
-        model_kwargs={"torch_dtype": torch.bfloat16},
+        model=model,
+        tokenizer=tokenizer,
         device_map="auto",
+        pad_token_id=tokenizer.eos_token_id  # Ensure pad_token_id is set to eos_token_id
     )
+
+    print(generator)
+    print()
+    print()
 
     messages = [
         {   "role": "system", 
@@ -33,21 +71,21 @@ def model_inference(question, context):
         },
     ]
 
-    prompt = pipeline.tokenizer.apply_chat_template(
+    prompt = tokenizer.apply_chat_template(
             messages, 
             tokenize=False, 
             add_generation_prompt=True
     )
 
     terminators = [
-        pipeline.tokenizer.eos_token_id,
-        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        tokenizer.eos_token_id,
+        tokenizer.convert_tokens_to_ids("")
     ]
 
-    outputs = pipeline(
+    outputs = generator(
         prompt,
         max_new_tokens=256,
-        eos_token_id=terminators,
+        eos_token_id=eos_token_id,
         do_sample=True,
         temperature=0.6,
         top_p=0.9,

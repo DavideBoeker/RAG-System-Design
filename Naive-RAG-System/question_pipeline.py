@@ -15,7 +15,7 @@ def main():
 
     # Step 2: Retrieve relevant Text Chunks from Chroma DB
     collection_name = "test"
-    relevant_chunks = chroma_db_operations.query_collection(query=question, collection_name=collection_name, required_results=10)
+    relevant_chunks = chroma_db_operations.query_collection(query=question, collection_name=collection_name, required_results=3)
 
 
     # Step 3: Retrieve Answer to Question from LLM Inference
