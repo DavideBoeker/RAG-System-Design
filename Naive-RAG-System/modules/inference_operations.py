@@ -98,7 +98,7 @@ access_token = os.getenv('ACCESS_TOKEN') # Access token for Hugging Face Hub
 
 
 
-def model_inference(question, context, access_token):
+def model_inference(question, context):
 
     # model_id = "deepseek-ai/deepseek-coder-1.3b-instruct"
     # model_id = "google/gemma-2b-it"
