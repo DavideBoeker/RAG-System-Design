@@ -8,7 +8,7 @@ from modules import inference_operations
 from modules import measure_execution
 
 
-@measure_execution
+# @measure_execution
 def main():
 
     # Step 1: Receive question
