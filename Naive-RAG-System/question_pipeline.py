@@ -5,15 +5,15 @@
 # Import Python Modules
 from modules import chroma_db_operations
 from modules import inference_operations
-from modules import measure_execution
+from modules.execution_diagnostic import execution_time
 
 
-# @measure_execution
+@execution_time
 def main():
 
     # Step 1: Receive question
-    question = "What is the revenue growth this year and what contributed to it?"
-    relevant_chunks = "The revenue growth in 2024 was 14 percent and was mainly driven by the increased sales in the cloud business division."
+    question = "What is the capital of France?"
+    context = "France is a country in Europe known for its cuisine and culture. Its capital city is Paris."
 
 
     # Step 2: Retrieve relevant Text Chunks from Chroma DB
@@ -22,7 +22,7 @@ def main():
 
 
     # Step 3: Retrieve Answer to Question from LLM Inference
-    answer = inference_operations.model_inference(question=question, context=relevant_chunks)
+    answer = inference_operations.model_inference(question=question, context=context)
     print(answer)
 
 
