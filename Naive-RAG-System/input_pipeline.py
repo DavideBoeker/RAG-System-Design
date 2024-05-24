@@ -33,7 +33,9 @@ def main():
     try:
         chroma_db_operations.delete_collection(collection_name=collection_name) # Delete the collection in case it is already existing
     except:
-        pass # Placeholder statement as this is required by the syntax
+        print("The collection does not exist yet.") # Placeholder statement as this is required by the syntax
+    else:
+        print("The previous version of the collection has been deleted.")
     finally:
         chroma_db_operations.create_collection(collection_name=collection_name) # The collection is hosted in a Docker container with a local mount in /chroma/
 

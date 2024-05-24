@@ -21,7 +21,11 @@ def model_inference(question, context):
     print()
     print()
 
-    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+    # model_id = "meta-llama/Meta-Llama-3-8B-Instruct" # Not suitable for VRAM < 16GB
+    # model_id = "google/gemma-2b-it"
+    # model_id = "microsoft/Phi-3-mini-4k-instruct"
+    # model_id = "deepseek-ai/deepseek-coder-1.3b-instruct"
+    model_id = "google/gemma-1.1-2b-it"
 
     # Load the tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
