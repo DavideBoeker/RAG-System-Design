@@ -20,15 +20,11 @@ def main():
     relevant_chunks = chroma_db_operations.query_collection(query=question, collection_name=collection_name, required_results=3)
     context = chroma_db_operations.create_context(relevant_chunks)
 
-    print()
-    print()
-    print(context)
-    print()
-    print()
 
 
     # Step 3: Retrieve Answer to Question from LLM Inference
     answer = inference_operations.inference_1B_model(question=question, context=context)
+    # answer = inference_operations.inference_2B_model(question=question, context=context)
     print()
     print()
     print(answer)
