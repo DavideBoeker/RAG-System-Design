@@ -1,8 +1,12 @@
 # Import Libraries
 import transformers
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import torch.quantization as quantization
 import os
+from quanto import quantize, freeze
+import quanto
+import bitsandbytes as bnb
 
 
 # Import Environment variables
@@ -14,26 +18,20 @@ def print_param_dtype(model):
         print(f"{name} is loaded in {param.dtype}")
 
 
-
 # def model_inference(question, context):
 
-#     print()
-#     print()
-#     print(question)
-#     print()
-#     print()
-#     print(context)
-#     print()
-#     print()
-
-#     # model_id = "meta-llama/Meta-Llama-3-8B-Instruct" # Not suitable for VRAM < 16GB
-#     model_id = "microsoft/Phi-3-mini-4k-instruct"
+#     model_id = "meta-llama/Meta-Llama-3-8B-Instruct" # Not suitable for VRAM < 16GB
+#     # model_id = "microsoft/Phi-3-mini-4k-instruct"
 #     # model_id = "deepseek-ai/deepseek-coder-1.3b-instruct"
+#     # model_id = "TheBloke/Llama-2-7B-GGUF"
     
 
 #     # Load the tokenizer and model
 #     tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
-#     model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token, torch_dtype=torch.bfloat16)
+#     model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token)
+
+#     quantize(model, weights=torch.int8, activations=None)
+#     freeze(model)
 
 #     print(model)
 #     print()
@@ -151,33 +149,114 @@ def print_param_dtype(model):
 #     return generated_text
 
 
+# def model_inference(question, context):
+
+#     # model_id = "google/gemma-1.1-2b-it"
+#     model_id = "TheBloke/Llama-2-7B-GGUF"
+
+#     # Load the tokenizer and model with the access token
+#     print("Loading tokenizer and model...")
+#     tokenizer = AutoTokenizer.from_pretrained(model_id,
+#                                               model_file="llama-2-7b-chat.q4_K_M.gguf",
+#                                               use_auth_token=access_token)
+#     model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token)
+#     model = AutoModelForCausalLM.from_pretrained("TheBloke/Llama-2-7b-Chat-GGUF",
+#                                                  model_file="llama-2-7b-chat.q4_K_M.gguf",
+#                                                  device_map='auto',
+#                                                  torch_dtype=torch.float16,
+#                                                  use_auth_token=access_token)
+
+#     # Quantize the model
+#     # quantize(model, weights=quanto.qint8, activations=None)
+#     # freeze(model)
+
+#     # print()
+#     # print()
+#     # print_param_dtype(model)
+#     # print()
+#     # print()
+
+#     # Prepare the input text
+#     input_text = f"Answer the following question based on the context provided. Question: {question}. Context: {context}."
+#     # print(f"Input text: {input_text}")
+
+#     # Tokenize the input text
+#     input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to(model.device)
+#     # print(f"Tokenized input IDs: {input_ids}")
+
+#     # Generate the output
+#     print("Generating response...")
+#     outputs = model.generate(
+#         input_ids,
+#         max_new_tokens=60,  # Reduce the number of tokens to generate for faster execution
+#         eos_token_id=tokenizer.eos_token_id,
+#         pad_token_id=tokenizer.eos_token_id,  # To avoid padding issues
+#         do_sample=True,
+#         temperature=0.6,
+#         top_p=0.9,
+#     )
+
+#     # Decode the generated text
+#     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+#     # Post-process the generated text to extract the answer
+#     answer_start = generated_text.find("Answer:")
+#     if answer_start != -1:
+#         generated_text = generated_text[answer_start + len("Answer:"):].strip()
+    
+#     return generated_text
+
+
 def model_inference(question, context):
 
     model_id = "google/gemma-1.1-2b-it"
+    model_name = "google_gemma_2b_it"
+    # model_id = "microsoft/Phi-3-mini-4k-instruct"
+    # modeln_name = "microsoft_phi_3_mini_4k_instruct"
 
-    # Load the tokenizer and model with the access token
     print("Loading tokenizer and model...")
-    tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=access_token)
-    model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=access_token, device_map="auto", torch_dtype=torch.bfloat16)
-    # print()
-    # print()
-    # print_param_dtype(model)
-    # print()
-    # print()
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    
+    # # Check if quantized model exists
+    # quantized_model_path = f"quantized_model_{model_name}.pt"
+    # try:
+    #     quantized_model = torch.load(quantized_model_path)
+    # except FileNotFoundError:
+    #     model = AutoModelForCausalLM.from_pretrained(model_id)
+    #     # Create a quantized version of the model with qint8 data type
+    #     quantized_model = quantization.quantize_dynamic(
+    #         model,  # Original model
+    #         qconfig_spec={torch.nn.Linear},  # Specify layers to quantize
+    #         dtype=torch.qint8  # Use 8-bit integers for quantization
+    #     )
+    #     # Save the quantized model to disk
+    #     torch.save(quantized_model, quantized_model_path)
+    
+    quantized_model_path = f"quantized_model.pt"
+        
+    # Create a quantized version of the model with qint8 data type
+    quantized_model = quantization.quantize_dynamic(
+        model,  # Original model
+        qconfig_spec={torch.nn.Linear},  # Specify layers to quantize
+        dtype=torch.qint8  # Use 8-bit integers for quantization
+    )
+    # Save the quantized model to disk
+    torch.save(quantized_model, quantized_model_path)
 
-    # Prepare the input text
+    # Create input text for the model
     input_text = f"Answer the following question based on the context provided. Question: {question}. Context: {context}."
-    # print(f"Input text: {input_text}")
 
-    # Tokenize the input text
-    input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to(model.device)
-    # print(f"Tokenized input IDs: {input_ids}")
+    # Tokenize the input text and convert it to tensor
+    print("Tokenizing input text...")
+    inputs = tokenizer(input_text, return_tensors="pt", truncation=True, padding=True)
+    input_ids = inputs.input_ids.to(quantized_model.device)
 
     # Generate the output
     print("Generating response...")
-    outputs = model.generate(
+    outputs = quantized_model.generate(
         input_ids,
-        max_new_tokens=60,  # Reduce the number of tokens to generate for faster execution
+        max_new_tokens=60,  # Adjust as needed
         eos_token_id=tokenizer.eos_token_id,
         pad_token_id=tokenizer.eos_token_id,  # To avoid padding issues
         do_sample=True,
@@ -185,12 +264,10 @@ def model_inference(question, context):
         top_p=0.9,
     )
 
-    # Decode the generated text
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    # Post-process the generated text to extract the answer
-    answer_start = generated_text.find("Answer:")
-    if answer_start != -1:
-        generated_text = generated_text[answer_start + len("Answer:"):].strip()
-    
+
     return generated_text
+
+
+
