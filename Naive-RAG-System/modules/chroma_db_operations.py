@@ -113,3 +113,9 @@ def delete_collection(collection_name):
 
     # Delete the collection from the Chroma DB
     chroma_client.delete_collection(name=collection_name)
+
+
+def create_context(relevant_chunks):
+    # Concatenate the text from the document column
+    context = " ".join(relevant_chunks["document"].tolist())
+    return context

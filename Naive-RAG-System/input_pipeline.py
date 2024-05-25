@@ -14,7 +14,6 @@ def main():
 
     ### Path to the PDF file
     pdf_file_path = 'input_data/test.pdf'
-    # /Users/davide/Documents/GitHub/RAG-System-Design/Naive-RAG-System/input_data
 
     ### Extract text from the PDF
     pdf_text = load_text_from_pdf.extract_text_from_pdf(pdf_file_path)
