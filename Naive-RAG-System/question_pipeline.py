@@ -12,18 +12,22 @@ from modules.execution_diagnostic import execution_time
 def main():
 
     # Step 1: Receive question
-    question = "What is the capital of France?"
-    context = "France is a country in Europe known for its cuisine and culture. Its capital city is Paris."
+    # question = "What is the capital of France?"
+    # context = "France is a country in Europe known for its cuisine and culture. Its capital city is Paris."
 
 
     # Step 2: Retrieve relevant Text Chunks from Chroma DB
     # collection_name = "test"
     # relevant_chunks = chroma_db_operations.query_collection(query=question, collection_name=collection_name, required_results=3)
 
+    # Step 3: Quantize the model
+    model_id = "google/gemma-1.1-2b-it"
+    quantized_model_path = "quantized_model.pt"
+    inference_operations.quantize_and_save_model(model_id=model_id, quantized_model_path=quantized_model_path)
 
     # Step 3: Retrieve Answer to Question from LLM Inference
-    answer = inference_operations.model_inference(question=question, context=context)
-    print(answer)
+    # answer = inference_operations.model_inference(question=question, context=context)
+    # print(answer)
 
 
 

@@ -207,32 +207,10 @@ def print_param_dtype(model):
 #     return generated_text
 
 
-def model_inference(question, context):
-    model_id = "google/gemma-1.1-2b-it"
-    quantized_model_path = "quantized_model.pt"
+def model_inference(question, context, model, model_id):
 
     print("Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-
-    try:
-        print("Loading quantized model from disk...")
-        quantized_model = torch.load(quantized_model_path)
-    except FileNotFoundError:
-        print("Quantized model not found. Loading and quantizing the model...")
-        model = AutoModelForCausalLM.from_pretrained(model_id)
-        
-        # Quantize the model
-        quantized_model = quantization.quantize_dynamic(
-            model,
-            qconfig_spec={torch.nn.Linear},
-            dtype=torch.qint8
-        )
-
-        # Move the model to CPU before saving
-        quantized_model.to('cpu')
-        
-        # Save the quantized model to disk
-        torch.save(quantized_model, quantized_model_path)
 
     # Create input text for the model
     input_text = f"Answer the following question based on the context provided. Question: {question}. Context: {context}."
@@ -240,11 +218,11 @@ def model_inference(question, context):
     # Tokenize the input text and convert it to tensor
     print("Tokenizing input text...")
     inputs = tokenizer(input_text, return_tensors="pt", truncation=True, padding=True)
-    input_ids = inputs.input_ids.to(quantized_model.device)
+    input_ids = inputs.input_ids.to(model.device)
 
     # Generate the output
     print("Generating response...")
-    outputs = quantized_model.generate(
+    outputs = model.generate(
         input_ids,
         max_new_tokens=60,  # Adjust as needed
         eos_token_id=tokenizer.eos_token_id,
@@ -257,6 +235,24 @@ def model_inference(question, context):
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     return generated_text
+
+
+def quantize_and_save_model(model_id, quantized_model_path):
+    print("Loading model for quantization...")
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+
+    print("Quantizing the model...")
+    quantized_model = quantization.quantize_dynamic(
+        model,
+        {torch.nn.Linear},
+        dtype=torch.qint8
+    )
+
+    print("Saving the quantized model...")
+    quantized_model.to('cpu')  # Move to CPU before saving
+    torch.save(quantized_model, quantized_model_path)
+    print("Quantized model saved.")
+    print()
 
 
 
