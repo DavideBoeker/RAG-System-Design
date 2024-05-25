@@ -208,41 +208,31 @@ def print_param_dtype(model):
 
 
 def model_inference(question, context):
-
     model_id = "google/gemma-1.1-2b-it"
-    model_name = "google_gemma_2b_it"
-    # model_id = "microsoft/Phi-3-mini-4k-instruct"
-    # modeln_name = "microsoft_phi_3_mini_4k_instruct"
+    quantized_model_path = "quantized_model.pt"
 
-    print("Loading tokenizer and model...")
+    print("Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
-    
-    # # Check if quantized model exists
-    # quantized_model_path = f"quantized_model_{model_name}.pt"
-    # try:
-    #     quantized_model = torch.load(quantized_model_path)
-    # except FileNotFoundError:
-    #     model = AutoModelForCausalLM.from_pretrained(model_id)
-    #     # Create a quantized version of the model with qint8 data type
-    #     quantized_model = quantization.quantize_dynamic(
-    #         model,  # Original model
-    #         qconfig_spec={torch.nn.Linear},  # Specify layers to quantize
-    #         dtype=torch.qint8  # Use 8-bit integers for quantization
-    #     )
-    #     # Save the quantized model to disk
-    #     torch.save(quantized_model, quantized_model_path)
-    
-    quantized_model_path = f"quantized_model.pt"
+
+    try:
+        print("Loading quantized model from disk...")
+        quantized_model = torch.load(quantized_model_path)
+    except FileNotFoundError:
+        print("Quantized model not found. Loading and quantizing the model...")
+        model = AutoModelForCausalLM.from_pretrained(model_id)
         
-    # Create a quantized version of the model with qint8 data type
-    quantized_model = quantization.quantize_dynamic(
-        model,  # Original model
-        qconfig_spec={torch.nn.Linear},  # Specify layers to quantize
-        dtype=torch.qint8  # Use 8-bit integers for quantization
-    )
-    # Save the quantized model to disk
-    torch.save(quantized_model, quantized_model_path)
+        # Quantize the model
+        quantized_model = quantization.quantize_dynamic(
+            model,
+            qconfig_spec={torch.nn.Linear},
+            dtype=torch.qint8
+        )
+
+        # Move the model to CPU before saving
+        quantized_model.to('cpu')
+        
+        # Save the quantized model to disk
+        torch.save(quantized_model, quantized_model_path)
 
     # Create input text for the model
     input_text = f"Answer the following question based on the context provided. Question: {question}. Context: {context}."
@@ -265,7 +255,6 @@ def model_inference(question, context):
     )
 
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
 
     return generated_text
 
