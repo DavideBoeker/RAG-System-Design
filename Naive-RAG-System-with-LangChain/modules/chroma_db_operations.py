@@ -20,3 +20,18 @@ def save_to_chroma(CHROMA_PATH, chunks: list[Document]):
     )
     db.persist()
     print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+
+def retrieve_relevant_chunks(CHROMA_PATH, query_text):
+
+    # Prepare the DB.
+    embedding_function = OpenAIEmbeddings()
+    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+
+    # Search the DB.
+    results = db.similarity_search_with_relevance_scores(query_text, k=3)
+    if len(results) == 0 or results[0][1] < 0.7:
+        print(f"Unable to find matching results.")
+        return
+    
+    return results
