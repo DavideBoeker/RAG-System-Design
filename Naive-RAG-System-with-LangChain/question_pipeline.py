@@ -1,5 +1,5 @@
 # Import Libraries
-
+import re
 
 # Import Modules
 from modules import user_interface, chroma_db_operations, inference_operations
@@ -22,13 +22,8 @@ def main():
 
     # Step 3: Conduct model inference to retrive answer
     prompt = inference_operations.create_prompt(query_text=question, relevant_chunks=relevant_chunks)
-    answer = inference_operations.model_inference(prompt=prompt, relevant_chunks=relevant_chunks)
-
-    print()
-    print()
-    print(answer)
-    print()
-    print()
+    formatted_answer = inference_operations.model_inference(prompt=prompt, relevant_chunks=relevant_chunks)
+    inference_operations.print_answer(formatted_answer=formatted_answer)
 
 
 

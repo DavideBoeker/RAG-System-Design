@@ -1,6 +1,7 @@
 # Import Libraries
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+import re
 
 
 PROMPT_TEMPLATE = """
@@ -34,3 +35,24 @@ def model_inference(prompt, relevant_chunks):
     formatted_response = f"Response: {response_text}\nSources: {sources}"
     
     return formatted_response
+
+
+def print_answer(formatted_answer):
+
+    # Define a regular expression pattern to match the content within single quotes
+    pattern = r"'(.*?)'"
+
+    # Search for the pattern in the answer string
+    match = re.search(pattern, formatted_answer)
+
+    print()
+    print()
+
+    if match:
+        content = match.group(1)  # Extract the content from the first capturing group
+        print("Answer: ", content)
+    else:
+        print("Content not found in the answer.")
+
+    print()
+    print()
