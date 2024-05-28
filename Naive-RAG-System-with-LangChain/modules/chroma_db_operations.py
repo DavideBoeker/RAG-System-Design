@@ -5,8 +5,8 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores.chroma import Chroma
 from langchain.schema import Document
 
+# Import Environment Variables
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
 
 
 def save_to_chroma(CHROMA_PATH, chunks: list[Document]):
