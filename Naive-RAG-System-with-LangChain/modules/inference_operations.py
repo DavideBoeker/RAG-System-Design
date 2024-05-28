@@ -1,9 +1,5 @@
 # Import Libraries
-import argparse
-from dataclasses import dataclass
-from langchain.vectorstores.chroma import Chroma
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
 
@@ -24,7 +20,7 @@ def create_prompt(query_text, relevant_chunks):
 
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     prompt = prompt_template.format(context=context_text, question=query_text)
-    print(prompt)
+    # print(prompt)
 
     return prompt
 
@@ -32,7 +28,7 @@ def create_prompt(query_text, relevant_chunks):
 def model_inference(prompt, relevant_chunks):
 
     model = ChatOpenAI()
-    response_text = model.predict(prompt)
+    response_text = model.invoke(prompt)
 
     sources = [doc.metadata.get("source", None) for doc, _score in relevant_chunks]
     formatted_response = f"Response: {response_text}\nSources: {sources}"

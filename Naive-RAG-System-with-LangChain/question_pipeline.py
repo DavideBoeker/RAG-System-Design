@@ -2,9 +2,8 @@
 
 
 # Import Modules
-from modules import user_interface
-from modules import chroma_db_operations
-from modules import inference_operations
+from modules import user_interface, chroma_db_operations, inference_operations
+
 
 # Define Global Variables
 CHROMA_PATH = "chroma"
@@ -25,7 +24,11 @@ def main():
     prompt = inference_operations.create_prompt(query_text=question, relevant_chunks=relevant_chunks)
     answer = inference_operations.model_inference(prompt=prompt, relevant_chunks=relevant_chunks)
 
+    print()
+    print()
     print(answer)
+    print()
+    print()
 
 
 

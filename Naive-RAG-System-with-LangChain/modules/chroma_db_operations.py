@@ -1,8 +1,8 @@
 # Import Libraries
 import os
 import shutil
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores.chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores.chroma import Chroma
 from langchain.schema import Document
 
 # Import Environment Variables
